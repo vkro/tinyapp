@@ -12,7 +12,7 @@ const urlDatabase = {
 };
 
 const generateRandomString = function() {
-  let randomString = Math.floor(Math.random()*1000000000000).toString(36); // using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX)
+  let randomString = Math.floor(Math.random()*2176782336).toString(36); // 2176782336 min base10 number to guarantee 6 digits from Math.random in base36. Using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX).
   return randomString.substr(1, 6);
 };
 
