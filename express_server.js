@@ -12,7 +12,8 @@ const urlDatabase = {
 };
 
 const generateRandomString = function() {
-  return Math.floor(Math.random()*1000000).toString(36); // using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX)
+  let randomString = Math.floor(Math.random()*1000000000000).toString(36); // using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX)
+  return randomString.substr(1, 6);
 };
 
 
