@@ -14,7 +14,7 @@ app.get('/', (request, response) => {
 });
 
 app.get('/urls', (request, response) => {
-  let templateVars = { urls: urlDatabase};
+  let templateVars = { urls: urlDatabase}; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   response.render('urls_index', templateVars);
 });
 
