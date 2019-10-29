@@ -30,7 +30,7 @@ app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   console.log(urlDatabase);    // log the POST request body to the console
-  res.send('OK');           // respond with 'OK' (we will replace this)
+  res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
 });
 
 app.get('/urls.json', (req, res) => {
