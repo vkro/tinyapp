@@ -22,6 +22,10 @@ app.get('/urls.json', (request, response) => {
   response.json(urlDatabase);
 });
 
+app.get('/urls/:shortURL', (request, response) => {
+  response.send(request.params);
+});
+
 app.get('/hello', (request, response) => {
   response.send('<html><body>Hello <b>World</b></body></html>\n');
 });
