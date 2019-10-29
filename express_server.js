@@ -11,6 +11,11 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.ca'
 };
 
+const generateRandomString = function() {
+  return Math.floor(Math.random()*1000000).toString(36); // using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX)
+};
+
+
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
