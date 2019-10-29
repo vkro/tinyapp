@@ -23,7 +23,8 @@ app.get('/urls.json', (request, response) => {
 });
 
 app.get('/urls/:shortURL', (request, response) => {
-  response.send(request.params);
+  let templateVars = { shortURL: request.params.shortURL, longURL: urlDatabase[shortURL] };
+  response.render('urls_show', templateVars);
 });
 
 app.get('/hello', (request, response) => {
