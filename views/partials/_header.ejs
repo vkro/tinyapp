@@ -12,12 +12,12 @@
         <% if(locals.username){ %>
           <p class="navbar-text" style="margin-left: 10em">Logged in as: <%= username %></p>
           <form action="/logout" method="POST">
-          <button class="btn btn-pill btn-outline-light navbar-text"  type="submit" name='username' value="<%= username %>" style="margin-left: 1em">Logout</button>
+          <button class="btn btn-pill btn-outline-light navbar-text"  type="submit" name='logout' value="<%= username %>" style="margin-left: 1em">Logout</button>
           </form>
         <% } else { %>  
         <div class="form-group mr-sm-2"></div>
           <form class="form-inline" action="/login" method="POST">
-          <input class="form-control" type="text" name="username" placeholder="Username" style="width: 150px; margin-right: .5em; margin-left: 10em">
+          <input class="form-control" type="text" name="login" placeholder="Username" style="width: 150px; margin-right: .5em; margin-left: 10em">
           <button type="submit" class="btn btn-pill btn-outline-light navbar-text">Login</button>
         <% } %>
           </form>
