@@ -74,6 +74,16 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
 });
 
+app.post('/register', (req, res) => {
+  const newUserID = generateRandomString();
+  users[newUserID] = { 'id': newUserID,
+                       'email': req.body.email,
+                       'password': req.body.password
+                      }
+  console.log(users);
+  res.redirect(`/urls`);           
+});
+
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect('/urls');
