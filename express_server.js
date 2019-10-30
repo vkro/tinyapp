@@ -28,6 +28,13 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+app.post('/login', (req, res) => {
+  console.log(req.params);
+  console.log(req.body);
+  res.redirect('/urls');
+});
+
+
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
