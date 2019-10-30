@@ -23,17 +23,16 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase}; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
-  res.render('urls_index', templateVars);
-});
-
 app.post('/login', (req, res) => {
   console.log(req.body);
   res.cookie('username', req.body.username);
   res.redirect('/urls');
 });
 
+app.get('/urls', (req, res) => {
+  let templateVars = { urls: urlDatabase, username: req.cookies['username'] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
+  res.render('urls_index', templateVars);
+});
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
