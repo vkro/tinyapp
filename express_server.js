@@ -36,49 +36,22 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
-});
-
-app.post('/logout', (req, res) => {
-  console.log(req.body);
-  res.clearCookie('username', req.body.username);
-  res.redirect('/urls');
-});
+app.get('/register', (req, res) => {
+  res.render('register');
+})
 
 app.get('/urls', (req, res) => {
   let templateVars = { urls: urlDatabase, username: req.cookies['username'] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   res.render('urls_index', templateVars);
 });
 
-app.post('/urls', (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
-});
-
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get('/register', (req, res) => {
-  res.render('register');
-})
-
 app.get('/urls/new', (req, res) => {
   let templateVars = { username: req.cookies['username'] }
   res.render('urls_new', templateVars);
-});
-
-app.post('/urls/:shortURL', (req, res) => {
-  urlDatabase[req.params.shortURL] = (req.body.newURL);
-  res.redirect(`/urls/${req.params.shortURL}`);
-});
-
-app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -93,6 +66,33 @@ app.get('/u/:shortURL', (req, res) => {
 
 app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World</b></body></html>\n');
+});
+
+app.post('/urls', (req, res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
+});
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  console.log(req.body);
+  res.clearCookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
+app.post('/urls/:shortURL', (req, res) => {
+  urlDatabase[req.params.shortURL] = (req.body.newURL);
+  res.redirect(`/urls/${req.params.shortURL}`);
+});
+
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
