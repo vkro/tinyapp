@@ -29,8 +29,8 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  console.log(req.params);
   console.log(req.body);
+  res.cookie('username', req.body.username);
   res.redirect('/urls');
 });
 
