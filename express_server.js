@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const urlDatabase = {
@@ -26,7 +26,7 @@ const users = {
   }
 };
 
-const generateRandomString = function() {
+const generateRandomString = function () {
   let randomString = Math.floor(Math.random() * 2176782336).toString(36); // 2176782336 min base10 number to guarantee 6 digits from Math.random in base36. Using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX).
   return randomString.substr(1, 6);
 };
@@ -76,13 +76,19 @@ app.post('/urls', (req, res) => {
 
 app.post('/register', (req, res) => {
   const newUserID = generateRandomString();
-  users[newUserID] = { 'id': newUserID,
-                       'email': req.body.email,
-                       'password': req.body.password
-                      }
-  res.cookie('user_id', newUserID);
-  console.log(users);
-  res.redirect(`/urls`);           
+
+  if (req.body.email === "" || req.body.password === "") {
+    res.sendStatus(400);
+  } else {
+    users[newUserID] = {
+      'id': newUserID,
+      'email': req.body.email,
+      'password': req.body.password
+    }
+    res.cookie('user_id', newUserID);
+    console.log(users);
+    res.redirect(`/urls`);
+  }
 });
 
 app.post('/login', (req, res) => {
