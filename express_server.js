@@ -45,12 +45,14 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-app.get('/register', (req, res) => {
+app.get('/register', (req, res) => {  
   res.render('register');
 })
 
 app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies['username'] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
+  let userID = req.cookies['user_id'];
+  let currentUser = users[userID];
+  let templateVars = { urls: urlDatabase, user: currentUser }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   res.render('urls_index', templateVars);
 });
 
