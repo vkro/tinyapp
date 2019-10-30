@@ -9,10 +9,12 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if(username){ %>
+        <% if(locals.username){ %>
           <p class="navbar-text" style="margin-left: 10em">Logged in as: <%= username %></p>
-          <input class="btn btn-pill btn-outline-light navbar-text" action="/logout" method="POST" type="submit" value="Logout" style="margin-left: 1em">
-        <% } else{ %>  
+          <form action="/logout" method="POST">
+          <button class="btn btn-pill btn-outline-light navbar-text"  type="submit" name='username' value="<%= username %>" style="margin-left: 1em">Logout</button>
+          </form>
+        <% } else { %>  
         <div class="form-group mr-sm-2"></div>
           <form class="form-inline" action="/login" method="POST">
           <input class="form-control" type="text" name="username" placeholder="Username" style="width: 150px; margin-right: .5em; margin-left: 10em">
