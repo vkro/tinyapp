@@ -96,7 +96,6 @@ app.post('/register', (req, res) => {
     res.sendStatus(400);
   } else {
     users[newUserID] = {
-      'id': newUserID,
       'email': newEmail,
       'password': newPassword
     }
@@ -108,19 +107,17 @@ app.post('/register', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const pw = req.body.password;
-  const userID = emailAlreadyRegistered(email, (user) => {return users[user]['id']});
+  const userID = emailAlreadyRegistered(email, (user) =>  user);
   const userPW = emailAlreadyRegistered(email, (user) => {return users[user]['password']})
   if (emailAlreadyRegistered(email, () => {return true})) {
     if (userPW === pw) {
       res.cookie('user_id', userID);
       res.redirect('/urls');
-    }
-  }
-  res.sendStatus(403); 
+    } else res.sendStatus(403); 
+  } else res.sendStatus(403); 
 });
 
 app.post('/logout', (req, res) => {
-  console.log(req.body);
   res.clearCookie('user_id', req.body.user_id);
   res.redirect('/urls');
 });
