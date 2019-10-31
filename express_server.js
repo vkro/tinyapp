@@ -10,7 +10,8 @@ app.use(cookieParser());
 
 const urlDatabase = {
   'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID: '4pdk39' },
-  '9sm5xK': { longURL: 'http://www.google.ca', userID: 'j36wu4' }
+  '9sm5xK': { longURL: 'http://www.google.ca', userID: 'j36wu4' },
+  'xs2hxK': { longURL: 'https://www.britannica.com/list/the-10-best-types-of-cat', userID: 'j36wu4' }
 };
 
 const users = {
@@ -38,6 +39,16 @@ const emailAlreadyRegistered = function (email, emailFoundCallback) {
   return false;
 }
 
+const urlsForUser = function(userID) {
+  let filteredURLs = {};
+  for (const url of Object.keys(urlDatabase)) {
+    if (urlDatabase[url]['userID'] === userID) {
+      filteredURLs[url] = urlDatabase[url];
+    }
+  }
+  return filteredURLs;
+}
+
 const whoIsLoggedIn = function(cookie) {
     for(const user of Object.keys(users)) {
       if (cookie === user) {
@@ -62,7 +73,9 @@ app.get('/login', (req, res) => {
 
 
 app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
+  const currentUser = req.cookies['user_id'];
+  const filteredURLs = urlsForUser(currentUser);
+  let templateVars = { urls: filteredURLs, user: users[currentUser]}; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   res.render('urls_index', templateVars);
 });
 
@@ -95,7 +108,12 @@ app.get('/hello', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  const user = req.cookies['user_id']
+  const newURL = {};
+  newURL['longURL'] = req.body.longURL;
+  newURL['userID'] = user;
+  urlDatabase[shortURL] = newURL;
+  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
 });
 
