@@ -25,12 +25,12 @@ const users = {
   }
 };
 
-const generateRandomString = function () {
+const generateRandomString = function() {
   let randomString = Math.floor(Math.random() * 2176782336).toString(36); // 2176782336 min base10 number to guarantee 6 digits from Math.random in base36. Using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX).
   return randomString.substr(1, 6);
 };
 
-const emailAlreadyRegistered = function (email, emailFoundCallback) {
+const emailAlreadyRegistered = function(email, emailFoundCallback) {
   for (const user of Object.keys(users)) {
     if (email === users[user]['email']) {
       return emailFoundCallback(user);
@@ -49,15 +49,21 @@ const urlsForUser = function(userID) {
   return filteredURLs;
 }
 
-const whoIsLoggedIn = function(cookie) {
-    for(const user of Object.keys(users)) {
-      if (cookie === user) {
-        return user;
-      } else {
-      return undefined;
-      }
-    }
+const whoIsLoggedIn = function(cookie) {
+  for (const user of Object.keys(users)) {
+    if (cookie === user) {
+      return user;
+    } else {
+      return undefined;
+    }
   }
+}
+
+const whoseUrlIsThis = function(shortURL) {
+  return urlDatabase[shortURL]['userID'];
+}
+
+
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -75,7 +81,7 @@ app.get('/login', (req, res) => {
 app.get('/urls', (req, res) => {
   const currentUser = req.cookies['user_id'];
   const filteredURLs = urlsForUser(currentUser);
-  let templateVars = { urls: filteredURLs, user: users[currentUser]}; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
+  let templateVars = { urls: filteredURLs, user: users[currentUser] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   res.render('urls_index', templateVars);
 });
 
@@ -93,8 +99,14 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['user_id']] };
-  res.render('urls_show', templateVars);
+  let userID = req.cookies['user_id']
+  let shortURL = req.params.shortURL;
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: userID };
+  if (userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
+    res.render('urls_show', templateVars);
+  } else {
+
+  }
 });
 
 app.get('/u/:shortURL', (req, res) => {
@@ -113,7 +125,6 @@ app.post('/urls', (req, res) => {
   newURL['longURL'] = req.body.longURL;
   newURL['userID'] = user;
   urlDatabase[shortURL] = newURL;
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
 });
 
