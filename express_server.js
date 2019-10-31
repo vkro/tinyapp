@@ -99,14 +99,16 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  let userID = req.cookies['user_id']
+  let userID = "";
   let shortURL = req.params.shortURL;
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: userID };
-  if (userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
-    res.render('urls_show', templateVars);
+  if (req.cookies['user_id'] === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
+    userID = req.cookies['user_id']
   } else {
-
+    userID = undefined;
   }
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: userID};
+  console.log(whoseUrlIsThis(shortURL))
+  res.render('urls_show', templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
