@@ -159,7 +159,7 @@ app.post('/urls/:shortURL', (req, res) => {
     urlDatabase[shortURL]['longURL'] = (req.body.newURL); //let them edit it
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.redirect(`/urls/${shortURL}`); // otherwise, redirect them to the shortURL page, where they'll receive an Access Denied message
+    res.sendStatus(403); // otherwise, send 403 status code (forbidden)
   }
 });
 
@@ -169,7 +169,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
-    res.redirect(`/urls/${shortURL}`);
+    res.sendStatus(403);
   }
 });
 
