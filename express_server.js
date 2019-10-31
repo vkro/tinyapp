@@ -31,15 +31,14 @@ const generateRandomString = function () {
   return randomString.substr(1, 6);
 };
 
-const emailAlreadyRegistered = function(newEmail) {
+const emailAlreadyRegistered = function(email, callback) {
   for(const user of Object.keys(users)) {
-    if (newEmail === users[user]['email']) {
-      return true;
+    if (email === users[user]['email']) {
+      return callback();
     }
   }
   return false;
 }
-
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -93,7 +92,7 @@ app.post('/register', (req, res) => {
   const newEmail = req.body.email;
   const newPassword = req.body.password;
 
-  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail)) {
+  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, () => {return true})) {
     res.sendStatus(400);
   } else {
     users[newUserID] = {
@@ -107,7 +106,7 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
+  res.cookie('user_id', req.body.username);
   res.redirect('/urls');
 });
 
