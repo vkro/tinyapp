@@ -15,12 +15,10 @@ const urlDatabase = {
 
 const users = {
   'userRandomID': {
-    id: 'userRandomID',
     email: 'user@example.com',
     password: 'thepassword'
   },
   'user2RandomID': {
-    id: 'user2RandomID',
     email: 'user2@example.com',
     password: "anotherpassword"
   }
@@ -39,6 +37,7 @@ const emailAlreadyRegistered = function(email, emailFoundCallback) {
   }
   return false;
 }
+
 
 app.get('/', (req, res) => {
   res.send('Hello!');
