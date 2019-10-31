@@ -104,10 +104,9 @@ app.get('/urls/:shortURL', (req, res) => {
   if (req.cookies['user_id'] === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
     userID = req.cookies['user_id']
   } else {
-    userID = undefined;
+    userID = undefined; // if not, userID is undefined
   }
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: userID};
-  console.log(whoseUrlIsThis(shortURL))
   res.render('urls_show', templateVars);
 });
 
@@ -166,13 +165,24 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/urls/:shortURL', (req, res) => {
-  urlDatabase[req.params.shortURL] = (req.body.newURL);
-  res.redirect(`/urls/${req.params.shortURL}`);
+  let currentUser = req.cookies['user_id'];
+  let shortURL = req.params.shortURL;
+  if (currentUser === whoseUrlIsThis(shortURL)) {   // if the person logged in is the owner of this shortURL
+    urlDatabase[shortURL]['longURL'] = (req.body.newURL); //let them edit it
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.redirect(`/urls/${shortURL}`); // otherwise, redirect them to the shortURL page, where they'll receive an Access Denied message
+  }
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  let shortURL = req.params.shortURL;
+  if (req.cookies['user_id'] === whoseUrlIsThis(shortURL)) {   // same as edit
+    delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.redirect(`/urls/${shortURL}`);
+  }
 });
 
 app.listen(PORT, () => {
