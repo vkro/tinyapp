@@ -29,8 +29,8 @@ const generateRandomString = function () {
   return randomString.substr(1, 6);
 };
 
-const emailAlreadyRegistered = function(email, emailFoundCallback) {
-  for(const user of Object.keys(users)) {
+const emailAlreadyRegistered = function (email, emailFoundCallback) {
+  for (const user of Object.keys(users)) {
     if (email === users[user]['email']) {
       return emailFoundCallback(user);
     }
@@ -43,11 +43,11 @@ app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
-app.get('/register', (req, res) => {  
+app.get('/register', (req, res) => {
   res.render('register');
 })
 
-app.get('/login', (req, res) => {  
+app.get('/login', (req, res) => {
   res.render('login');
 })
 
@@ -63,7 +63,11 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   let templateVars = { user: users[req.cookies['user_id']] }
-  res.render('urls_new', templateVars);
+  if (req.cookies['user_id']) {
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect(`/login`);
+  }
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -91,7 +95,7 @@ app.post('/register', (req, res) => {
   const newEmail = req.body.email;
   const newPassword = req.body.password;
 
-  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, () => {return true})) {
+  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, () => { return true })) {
     res.sendStatus(400);
   } else {
     users[newUserID] = {
@@ -106,14 +110,14 @@ app.post('/register', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const pw = req.body.password;
-  const userID = emailAlreadyRegistered(email, (user) =>  user);
-  const userPW = emailAlreadyRegistered(email, (user) => {return users[user]['password']})
-  if (emailAlreadyRegistered(email, () => {return true})) {
+  const userID = emailAlreadyRegistered(email, (user) => user);
+  const userPW = emailAlreadyRegistered(email, (user) => { return users[user]['password'] })
+  if (emailAlreadyRegistered(email, () => { return true })) {
     if (userPW === pw) {
       res.cookie('user_id', userID);
       res.redirect('/urls');
-    } else res.sendStatus(403); 
-  } else res.sendStatus(403); 
+    } else res.sendStatus(403);
+  } else res.sendStatus(403);
 });
 
 app.post('/logout', (req, res) => {
