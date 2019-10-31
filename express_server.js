@@ -87,20 +87,18 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  let userID = "";
+  let userID = req.cookies['user_id'];
   let shortURL = req.params.shortURL;
-  if (req.cookies['user_id'] === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
-    userID = req.cookies['user_id']
-  } else {
-    userID = undefined; // if not, userID is undefined
+  let access = false;
+  if (userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
+    access = true;
   }
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: userID};
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access};
   res.render('urls_show', templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]['longURL'];
-  console.log(longURL)
   res.redirect(longURL);
 });
 
