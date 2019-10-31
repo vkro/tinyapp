@@ -106,10 +106,17 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const userID = emailAlreadyRegistered(req.body.email, (user) => {return users[user]['id']});
-  console.log(userID)
-  res.cookie('user_id', userID);
-  res.redirect('/urls');
+  const email = req.body.email;
+  const pw = req.body.password;
+  const userID = emailAlreadyRegistered(email, (user) => {return users[user]['id']});
+  const userPW = emailAlreadyRegistered(email, (user) => {return users[user]['password']})
+  if (emailAlreadyRegistered(email, () => {return true})) {
+    if (userPW === pw) {
+      res.cookie('user_id', userID);
+      res.redirect('/urls');
+    }
+  }
+  res.sendStatus(403); 
 });
 
 app.post('/logout', (req, res) => {
