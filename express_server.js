@@ -31,10 +31,10 @@ const generateRandomString = function () {
   return randomString.substr(1, 6);
 };
 
-const emailAlreadyRegistered = function(email, callback) {
+const emailAlreadyRegistered = function(email, emailFoundCallback) {
   for(const user of Object.keys(users)) {
     if (email === users[user]['email']) {
-      return callback();
+      return emailFoundCallback(user);
     }
   }
   return false;
@@ -106,7 +106,9 @@ app.post('/register', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('user_id', req.body.username);
+  const userID = emailAlreadyRegistered(req.body.email, (user) => {return users[user]['id']});
+  console.log(userID)
+  res.cookie('user_id', userID);
   res.redirect('/urls');
 });
 
