@@ -49,21 +49,9 @@ const urlsForUser = function(userID) {
   return filteredURLs;
 }
 
-const whoIsLoggedIn = function(cookie) {
-  for (const user of Object.keys(users)) {
-    if (cookie === user) {
-      return user;
-    } else {
-      return undefined;
-    }
-  }
-}
-
 const whoseUrlIsThis = function(shortURL) {
   return urlDatabase[shortURL]['userID'];
 }
-
-
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -111,7 +99,8 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL]['longURL'];
+  console.log(longURL)
   res.redirect(longURL);
 });
 
@@ -167,6 +156,7 @@ app.post('/logout', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
   let currentUser = req.cookies['user_id'];
   let shortURL = req.params.shortURL;
+
   if (currentUser === whoseUrlIsThis(shortURL)) {   // if the person logged in is the owner of this shortURL
     urlDatabase[shortURL]['longURL'] = (req.body.newURL); //let them edit it
     res.redirect(`/urls/${shortURL}`);
