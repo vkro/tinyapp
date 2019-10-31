@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -119,7 +120,7 @@ app.post('/urls', (req, res) => {
 app.post('/register', (req, res) => {
   const newUserID = generateRandomString();
   const newEmail = req.body.email;
-  const newPassword = req.body.password;
+  const newPassword = bcrypt.hashSync(req.body.password, 10);
 
   if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, () => { return true })) {
     res.sendStatus(400);
@@ -131,15 +132,16 @@ app.post('/register', (req, res) => {
     res.cookie('user_id', newUserID);
     res.redirect(`/urls`);
   }
+  console.log(newPassword);
 });
 
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const pw = req.body.password;
   const userID = emailAlreadyRegistered(email, (user) => user);
-  const userPW = emailAlreadyRegistered(email, (user) => { return users[user]['password'] })
+  const hashedPW = emailAlreadyRegistered(email, (user) => { return users[user]['password'] })
   if (emailAlreadyRegistered(email, () => { return true })) {
-    if (userPW === pw) {
+    if (bcrypt.compareSync(pw, hashedPW)) {
       res.cookie('user_id', userID);
       res.redirect('/urls');
     } else res.sendStatus(403);
