@@ -9,16 +9,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.ca'
+  'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID: '4pdk39' },
+  '9sm5xK': { longURL: 'http://www.google.ca', userID: 'j36wu4' }
 };
 
 const users = {
-  'userRandomID': {
+  '4pdk39': {
     email: 'user@example.com',
     password: 'thepassword'
   },
-  'user2RandomID': {
+  'j36wu4': {
     email: 'user2@example.com',
     password: "anotherpassword"
   }
@@ -38,6 +38,15 @@ const emailAlreadyRegistered = function (email, emailFoundCallback) {
   return false;
 }
 
+const whoIsLoggedIn = function(cookie) {
+    for(const user of Object.keys(users)) {
+      if (cookie === user) {
+        return user;
+      } else {
+      return undefined;
+      }
+    }
+  }
 
 app.get('/', (req, res) => {
   res.send('Hello!');
