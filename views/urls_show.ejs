@@ -35,17 +35,17 @@
   <div class="card text-center">
     <div class="card-header"></div>
     <div class="card-body">
-      <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-      <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+      <h5 class="card-title text-muted font-weight-light">TinyURL for: <b class="text-dark font-weight-bold"><%= longURL %></b></h5>
+      <p class="card-text text-muted">TinyURL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
     </div>
     <div class="card-footer text-center">
       <label for="card-footer">
-        <h3 class="text-muted">Edit</h3>
+        <h5 class="text-muted font-weight-light">Edit this TinyURL</h5>
       </label>
-      <form class="form-horizontal" action="/urls/<%= shortURL %>" method="POST">
-        <label for="newURL">New URL:</label>
+      <form class="form-horizontal text-muted" action="/urls/<%= shortURL %>" method="POST">
+        <label for="newURL">Where do you want the TinyURL <b class="text-success"><%= shortURL %></b> to go?</label>
         <input class="form-control" type="text" name="newURL" placeholder="http://" style="width: 300px; margin: auto">
-        <button type="submit" class="btn btn-primary" style="margin-top: 10px;";">Submit</button>
+        <button type="submit" class="btn btn-success" style="margin-top: 10px;";">Submit</button>
       </form>
     </div>
   </div>
