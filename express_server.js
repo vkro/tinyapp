@@ -89,7 +89,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
   if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL, urlDatabase)) {    // make sure the shortURL is in the database, and person trying to view this page is the owner of the shortURL
     access = true;                                                       // if both are true, set access to true
-    templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access };
+    templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], date: urlDatabase[shortURL]['dateCreated'], access: access };
   } else if (!access) {
     if (!urlDatabase[shortURL]) {                                        // if url isn't in database, send 404 status
       res.status(404);
@@ -115,13 +115,16 @@ app.get('/u/:shortURL', (req, res) => {
 
 // POST ROUTES
 
-app.post('/urls', (req, res) => {
+app.post('/urls', (req, res) => {            // create new shortURL
   const shortURL = generateRandomString();
   const user = req.session.user_id;
   const newURL = {};
+  const date = new Date()
+  const dateToString = date.toString()
   if (user) {                                // if user is logged in
     newURL['longURL'] = req.body.longURL;
     newURL['userID'] = user;
+    newURL['dateCreated'] = dateToString.substring(4, 15);
     urlDatabase[shortURL] = newURL;          // add new entry to urlDatabase
     res.redirect(`/urls/${shortURL}`);       // and redirect to new shortURL page
   } else {
