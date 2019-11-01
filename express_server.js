@@ -107,7 +107,7 @@ app.get('/urls/:shortURL', (req, res) => {
     } else {
       res.status(403);
     }
-    templateVars = {access: access}
+    templateVars = {access: access, user: users[userID]}
   } 
   res.render('urls_show', templateVars);
 });
