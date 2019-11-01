@@ -99,7 +99,9 @@ app.get('/urls/:shortURL', (req, res) => {
     access = true;
   }
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access};
- 
+  if (!access) {
+    res.status(403);
+  }
   res.render('urls_show', templateVars);
 });
 
@@ -130,7 +132,8 @@ app.post('/register', (req, res) => {
   const newPassword = bcrypt.hashSync(req.body.password, 10);
 
   if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, users, () => { return true })) {
-    res.sendStatus(400);
+    res.status(400);
+    res.redirect(`/register`);
   } else {
     users[newUserID] = {
       'email': newEmail,
