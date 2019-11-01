@@ -87,7 +87,8 @@ app.get('/urls/new', (req, res) => {
   if (req.session.user_id) {
     res.render('urls_new', templateVars);
   } else {
-    res.redirect(`/login`);
+    res.status(403);
+    res.render('login');
   }
 });
 
