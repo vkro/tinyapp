@@ -4,7 +4,11 @@ const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session')
-const { emailAlreadyRegistered } = require('./helpers.js');
+const { emailAlreadyRegistered } = require('./helpers');
+const { generateRandomString } = require('./helpers');
+const { urlsForUser } = require('./helpers');
+const { whoseUrlIsThis } = require('./helpers');
+
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -19,46 +23,17 @@ const urlDatabase = {
   'xs2hxK': { longURL: 'https://www.britannica.com/list/the-10-best-types-of-cat', userID: 'j36wu4' }
 };
 
-const users = {
-  '4pdk39': {
-    email: 'user@example.com',
-    password: 'thepassword'
-  },
-  'j36wu4': {
-    email: 'user2@example.com',
-    password: "anotherpassword"
-  }
-};
+const users = {};
 
 
-const generateRandomString = function() {
-  let randomString = Math.floor(Math.random() * 2176782336).toString(36); // 2176782336 min base10 number to guarantee 6 digits from Math.random in base36. Using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX).
-  return randomString.substr(1, 6);
-};
-
-const urlsForUser = function(userID) {
-  let filteredURLs = {};
-  for (const url of Object.keys(urlDatabase)) {
-    if (urlDatabase[url]['userID'] === userID) {
-      filteredURLs[url] = urlDatabase[url];
-    }
-  }
-  return filteredURLs;
-}
-
-const whoseUrlIsThis = function(shortURL) {
-  return urlDatabase[shortURL]['userID'];
-}
-
-
-// GET 
+// GET ROUTES
 
 app.get('/', (req, res) => {
   const templateVars = { loginError: false };
   if (!req.session.user_id) {               // if nobody's logged in
     res.render('login', templateVars);      // send them to the login page
   }
-  res.redirect('/urls');                    // otherwise send them to their url index
+  res.render('urls');                    // otherwise send them to their url index
 });
 
 app.get('/register', (req, res) => {
@@ -81,7 +56,7 @@ app.get('/login', (req, res) => {
 
 app.get('/urls', (req, res) => {
   const currentUser = req.session.user_id;
-  const filteredURLs = urlsForUser(currentUser);              // filter urlDatabase for urls owned by currently logged-in user
+  const filteredURLs = urlsForUser(currentUser, urlDatabase);              // filter urlDatabase for urls owned by currently logged-in user
   let templateVars = { urls: filteredURLs, user: users[currentUser] };         // ** NOTE TO SELF ** variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   if (!currentUser) {                                         // check if there's someone logged in
     res.status(403);                                          // if not, send 403 status code
@@ -112,7 +87,7 @@ app.get('/urls/:shortURL', (req, res) => {
   let access = false;                   // access is false unless user and url are verified
   let templateVars = {};
 
-  if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL)) {    // make sure the shortURL is in the database, and person trying to view this page is the owner of the shortURL
+  if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL, urlDatabase)) {    // make sure the shortURL is in the database, and person trying to view this page is the owner of the shortURL
     access = true;                                                       // if both are true, set access to true
     templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access };
   } else if (!access) {
@@ -138,7 +113,7 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
-// POST
+// POST ROUTES
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
@@ -196,7 +171,7 @@ app.post('/urls/:shortURL', (req, res) => {
   let currentUser = req.session.user_id;
   let shortURL = req.params.shortURL;
 
-  if (currentUser === whoseUrlIsThis(shortURL)) {            // if the person logged in is the owner of this shortURL
+  if (currentUser === whoseUrlIsThis(shortURL, urlDatabase)) {            // if the person logged in is the owner of this shortURL
     urlDatabase[shortURL]['longURL'] = (req.body.newURL);    //let them edit it
     res.redirect(`/urls/${shortURL}`);
   } else {
@@ -206,7 +181,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.session.user_id === whoseUrlIsThis(shortURL)) {   // same thing happening here as in POST /urls/:shortURL (edit)
+  if (req.session.user_id === whoseUrlIsThis(shortURL, urlDatabase)) {   // same thing happening here as in POST /urls/:shortURL (edit)
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
@@ -216,7 +191,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/logout', (req, res) => {
   req.session = null
-  res.redirect('/');
+  res.redirect('login');
 });
 
 app.listen(PORT, () => {
