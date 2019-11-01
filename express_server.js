@@ -54,84 +54,86 @@ const whoseUrlIsThis = function(shortURL) {
 // GET 
 
 app.get('/', (req, res) => {
-  if (!req.session.user_id) {
-    res.redirect(`/login`);
+  const templateVars = { loginError: false };
+  if (!req.session.user_id) {               // if nobody's logged in
+    res.render('login', templateVars);      // send them to the login page
   }
-  res.redirect(`/urls`);
+  res.redirect('/urls');                    // otherwise send them to their url index
 });
 
 app.get('/register', (req, res) => {
-  if (!req.session.user_id) {
-    res.render('register');
+  if (!req.session.user_id) {                 // if nobody's logged in
+    res.render('register');                   // let them register
   } else {
-    res.redirect('/urls');
+    res.redirect('/urls');                    // otherwise redirect them to their urls index
   }
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { loginError: false }; // include this because POST /login uses this to notify user that they've entered incorrect login info
-  if (!req.session.user_id) {
-    res.render('login', templateVars);
+  const templateVars = { loginError: false }; // include this because POST /login route uses this to signal that user gets a message that they've entered incorrect login info
+  if (!req.session.user_id) {                 // if nobody's logged in
+    res.render('login', templateVars);        // then let them log in
   } else {
-    res.redirect('/urls');
+    res.redirect('/urls');                    // otherwise redirect them to their urls index
   }
 });
 
 
 app.get('/urls', (req, res) => {
   const currentUser = req.session.user_id;
-  const filteredURLs = urlsForUser(currentUser);
-  let templateVars = { urls: filteredURLs, user: users[currentUser] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
-  if (!currentUser) {
-    res.status(403);
-    res.render('urls_index', templateVars);
-  } else {
-    res.render('urls_index', templateVars);
+  const filteredURLs = urlsForUser(currentUser);              // filter urlDatabase for urls owned by currently logged-in user
+  let templateVars = { urls: filteredURLs, user: users[currentUser] };         // ** NOTE TO SELF ** variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
+  if (!currentUser) {                                         // check if there's someone logged in
+    res.status(403);                                          // if not, send 403 status code
   }
+  res.render('urls_index', templateVars);                     // render user's urls index - if user's not logged in, they'll get an Access Denied pop-up instead
 });
+
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
+
 app.get('/urls/new', (req, res) => {
-  let templateVars = { user: users[req.session.user_id] }
-  if (req.session.user_id) {
-    res.render('urls_new', templateVars);
+  let templateVarsNew = { user: users[req.session.user_id] };
+  let templateVarsLogin = {loginError: true};
+  if (req.session.user_id) {                           // if someone's logged in
+    res.render('urls_new', templateVarsNew);           // let them access the form to create a new tinyURL
   } else {
-    res.status(403);
-    res.render('login');
+    res.status(403);                                   // otherwise end a 403 status code
+    res.render('login', templateVarsLogin);            // and send them to the login page with a cue that there's been an error
   }
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   let userID = req.session.user_id;
   let shortURL = req.params.shortURL;
-  let access = false;
+  let access = false;                   // access is false unless user and url are verified
   let templateVars = {};
 
-  if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
-    access = true;
+  if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL)) {    // make sure the shortURL is in the database, and person trying to view this page is the owner of the shortURL
+    access = true;                                                       // if both are true, set access to true
     templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access };
   } else if (!access) {
-    if (!urlDatabase[shortURL]) {
+    if (!urlDatabase[shortURL]) {                                        // if url isn't in database, send 404 status
       res.status(404);
     } else {
-      res.status(403);
+      res.status(403);                                                   // otherwise, user doesn't own shortURL, so send 403 status
     }
     templateVars = { access: access, user: users[userID] }
   }
-  res.render('urls_show', templateVars);
+  res.render('urls_show', templateVars);                                 // render shortURL page based on value of access variable
 });
 
 
 app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  if (urlDatabase[shortURL]) {
+  if (urlDatabase[shortURL]) {                         // if the shortURL exists in the database
     const longURL = urlDatabase[shortURL]['longURL'];
-    res.redirect(longURL);
+    res.redirect(longURL);                             // redirect to the associated longURL
   } else {
-    res.status(404);
+    res.status(404);                                   // otherwise send 404 status and redirect to url index
     res.redirect('/urls');
   }
 });
@@ -145,11 +147,11 @@ app.post('/urls', (req, res) => {
   if (user) {                                // if user is logged in
     newURL['longURL'] = req.body.longURL;
     newURL['userID'] = user;
-    urlDatabase[shortURL] = newURL;
-    res.redirect(`/urls/${shortURL}`);       // redirect to shortURL page
+    urlDatabase[shortURL] = newURL;          // add new entry to urlDatabase
+    res.redirect(`/urls/${shortURL}`);       // and redirect to new shortURL page
   } else {
-    res.status(403);
-    res.redirect('/login');
+    res.status(403);                         // otherwise, send 403 status
+    res.redirect('/login');                  // and redirect to login page
   }
 });
 
@@ -160,7 +162,7 @@ app.post('/register', (req, res) => {
 
   if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, users, () => { return true })) {
     res.status(400);
-    res.redirect(`/register`);
+    res.redirect('/register');
   } else {
     users[newUserID] = {
       'email': newEmail,
@@ -179,41 +181,42 @@ app.post('/login', (req, res) => {
   const templateVars = { loginError: false };
 
   if (userID) {
-    if (bcrypt.compareSync(pw, hashedPW)) {
-      req.session.user_id = userID;
-      res.redirect('/urls');
+    if (bcrypt.compareSync(pw, hashedPW)) {   // verify password with stored hashed password
+      req.session.user_id = userID;           // set session cookie
+      res.redirect('/urls');                  // redirect to urls index
     }
   }
-  templateVars.loginError = true;
-  res.status(403);
-  res.render('login', templateVars);
+  templateVars.loginError = true;             // if wrong email or password entered
+  res.status(403);                            // error code and 
+  res.render('login', templateVars);          // go back to login page, displaying message cueing user that wrong login info has been entered
 });
 
-app.post('/logout', (req, res) => {
-  req.session = null
-  res.redirect('/urls');
-});
 
 app.post('/urls/:shortURL', (req, res) => {
   let currentUser = req.session.user_id;
   let shortURL = req.params.shortURL;
 
-  if (currentUser === whoseUrlIsThis(shortURL)) {   // if the person logged in is the owner of this shortURL
-    urlDatabase[shortURL]['longURL'] = (req.body.newURL); //let them edit it
+  if (currentUser === whoseUrlIsThis(shortURL)) {            // if the person logged in is the owner of this shortURL
+    urlDatabase[shortURL]['longURL'] = (req.body.newURL);    //let them edit it
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.sendStatus(403); // otherwise, send 403 status code (forbidden)
+    res.sendStatus(403);                                    // otherwise, send 403 status code
   }
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.session.user_id === whoseUrlIsThis(shortURL)) {   // same as edit
+  if (req.session.user_id === whoseUrlIsThis(shortURL)) {   // same thing happening here as in POST /urls/:shortURL (edit)
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
     res.sendStatus(403);
   }
+});
+
+app.post('/logout', (req, res) => {
+  req.session = null
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
