@@ -216,7 +216,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/logout', (req, res) => {
   req.session = null
-  res.redirect('/urls');
+  res.redirect('/');
 });
 
 app.listen(PORT, () => {
