@@ -6,7 +6,7 @@ const emailAlreadyRegistered = function(email, userDatabase, emailFoundCallback)
       return emailFoundCallback(user);
     }
   }
-  return false;
+  return undefined;
 }
 
 
