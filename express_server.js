@@ -37,10 +37,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  if (!req.session.user_id) {                 // if nobody's logged in
-    res.render('register');                   // let them register
+  const templateVars = { registrationError: false};  // used in POST /register route
+  if (!req.session.user_id) {                        // if nobody's logged in
+    res.render('register', templateVars);                          // let them register
   } else {
-    res.redirect('/urls');                    // otherwise redirect them to their urls index
+    res.redirect('/urls');                           // otherwise redirect them to their urls index
   }
 });
 
@@ -137,17 +138,21 @@ app.post('/register', (req, res) => {
   const newUserID = generateRandomString();
   const newEmail = req.body.email;
   const newPassword = bcrypt.hashSync(req.body.password, 10);
+  const templateVars = { registrationError: false };
 
-  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, users, () => { return true })) {
+  if (newEmail === "" || newPassword === "") {
     res.status(400);
-    res.redirect('/register');
+    res.render('register', templateVars);
+  } else if (emailAlreadyRegistered(newEmail, users, () => { return true })) {
+    templateVars.registrationError = true;
+    res.render('register', templateVars);
   } else {
     users[newUserID] = {
-      'email': newEmail,
-      'password': newPassword
-    }
-    req.session.user_id = newUserID;
-    res.redirect(`/urls`);
+    'email': newEmail,
+    'password': newPassword
+  }
+  req.session.user_id = newUserID;
+  res.redirect(`/urls`);
   }
 });
 

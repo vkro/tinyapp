@@ -26,6 +26,9 @@
           style="width: 300px; margin-bottom: .2em">
         <button type="submit" class="btn btn-pill btn-outline-success" style="margin-top: .4em">Sign Up</button>
         <p class="inline text-muted">Already have an account? <a href="/login" class="text-success">Log in here.</a></p>
+        <% if (registrationError) { %>
+          <p class="text-danger">This account already exists. Please register with a different email address.</p>
+        <% } %>
       </form>
 
   </main>
