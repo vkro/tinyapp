@@ -4,10 +4,7 @@ const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session')
-const emailAlreadyRegistered = require('./helpers.js');
-
-
-
+const { emailAlreadyRegistered } = require('./helpers.js');
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -140,6 +137,7 @@ app.post('/login', (req, res) => {
   const pw = req.body.password;
   const userID = emailAlreadyRegistered(email, users, (user) => user);
   const hashedPW = emailAlreadyRegistered(email, users, (user) => { return users[user]['password'] })
+
   if (emailAlreadyRegistered(email, users, () => { return true })) {
     if (bcrypt.compareSync(pw, hashedPW)) {
       req.session.user_id = userID;

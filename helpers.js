@@ -11,4 +11,4 @@ const emailAlreadyRegistered = function(email, userDatabase, emailFoundCallback)
 
 
 
-module.exports = emailAlreadyRegistered;
+module.exports = { emailAlreadyRegistered };
