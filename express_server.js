@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  const templateVars = { registrationError: false};  // used in POST /register route
+  const templateVars = { registrationError: false};  // used later in POST /register route
   if (!req.session.user_id) {                        // if nobody's logged in
     res.render('register', templateVars);                          // let them register
   } else {
@@ -140,13 +140,13 @@ app.post('/register', (req, res) => {
   const newPassword = bcrypt.hashSync(req.body.password, 10);
   const templateVars = { registrationError: false };
 
-  if (newEmail === "" || newPassword === "") {
+  if (newEmail === "" || newPassword === "") {     // if either field is blank, send 400 code and redirect back to registration page
     res.status(400);
     res.render('register', templateVars);
   } else if (emailAlreadyRegistered(newEmail, users, () => { return true })) {
-    templateVars.registrationError = true;
+    templateVars.registrationError = true;        // if email already registered in database, render registration page with message letting user know
     res.render('register', templateVars);
-  } else {
+  } else {                                        // otherwise, add new user to database and redirect to /urls
     users[newUserID] = {
     'email': newEmail,
     'password': newPassword
