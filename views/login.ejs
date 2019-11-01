@@ -19,13 +19,14 @@
 
   <h3 class=text-muted>Login</h3>
 
-  <form class="form-group mb-2" action="/login" method="POST">
+  <form class="form-group mb-3" action="/login" method="POST">
     <label for="email" style="margin-bottom: .2em">Email:</label>
     <input class="form-control" type="email" name="email" placeholder="Email" style="width: 300px; margin-bottom: .4em">
     <label for="password" style="margin-bottom: .2em">Password:</label>
     <input class="form-control" type="password" name="password" placeholder="Password"
       style="width: 300px; margin-bottom: .2em">
     <button type="submit" class="btn btn-pill btn-outline-success" style="margin-top: .4em">Login</button>
+    <p class='inline text-muted'>Don't have an account? <a href="/register" class="text-success">Sign up here.</a></p>
   </form>
 
 
