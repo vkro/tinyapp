@@ -61,8 +61,12 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('register');
-})
+  if (!req.session.user_id) {
+    res.render('register');
+  } else {
+    res.redirect('/urls');
+  }
+});
 
 app.get('/login', (req, res) => {
   if (!req.session.user_id) {
@@ -70,7 +74,7 @@ app.get('/login', (req, res) => {
   } else {
     res.redirect('/urls');
   }
-})
+});
 
 
 app.get('/urls', (req, res) => {
