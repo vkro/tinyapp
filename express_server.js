@@ -38,9 +38,9 @@ const generateRandomString = function() {
   return randomString.substr(1, 6);
 };
 
-const emailAlreadyRegistered = function(email, emailFoundCallback) {
-  for (const user of Object.keys(users)) {
-    if (email === users[user]['email']) {
+const emailAlreadyRegistered = function(email, userDatabase, emailFoundCallback) {
+  for (const user of Object.keys(userDatabase)) {
+    if (email === userDatabase[user]['email']) {
       return emailFoundCallback(user);
     }
   }
@@ -97,7 +97,6 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   let userID = req.session.user_id;
   let shortURL = req.params.shortURL;
-  console.log(`${userID}  ${shortURL}   ${urlDatabase[shortURL]['longURL']}`)
   let access = false;
   if (userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
     access = true;
@@ -110,8 +109,6 @@ app.get('/u/:shortURL', (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL]['longURL'];
-  console.log(shortURL);
-  console.log(longURL);
   res.redirect(longURL);
 });
 
@@ -134,7 +131,7 @@ app.post('/register', (req, res) => {
   const newEmail = req.body.email;
   const newPassword = bcrypt.hashSync(req.body.password, 10);
 
-  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, () => { return true })) {
+  if (newEmail === "" || newPassword === "" || emailAlreadyRegistered(newEmail, users, () => { return true })) {
     res.sendStatus(400);
   } else {
     users[newUserID] = {
@@ -144,15 +141,14 @@ app.post('/register', (req, res) => {
     req.session.user_id = newUserID;
     res.redirect(`/urls`);
   }
-  console.log(newPassword);
 });
 
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const pw = req.body.password;
-  const userID = emailAlreadyRegistered(email, (user) => user);
-  const hashedPW = emailAlreadyRegistered(email, (user) => { return users[user]['password'] })
-  if (emailAlreadyRegistered(email, () => { return true })) {
+  const userID = emailAlreadyRegistered(email, users, (user) => user);
+  const hashedPW = emailAlreadyRegistered(email, users, (user) => { return users[user]['password'] })
+  if (emailAlreadyRegistered(email, users, () => { return true })) {
     if (bcrypt.compareSync(pw, hashedPW)) {
       req.session.user_id = userID;
       res.redirect('/urls');
