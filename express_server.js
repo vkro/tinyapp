@@ -111,11 +111,16 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+
 app.get('/u/:shortURL', (req, res) => {
-  const userID = req.session.user_id;
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL]['longURL'];
-  res.redirect(longURL);
+  if (urlDatabase[shortURL]) {
+    const longURL = urlDatabase[shortURL]['longURL'];
+    res.redirect(longURL);
+  } else {
+    res.status(404);
+    res.redirect('/urls');
+  }
 });
 
 app.get('/hello', (req, res) => {
