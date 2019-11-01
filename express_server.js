@@ -1,15 +1,19 @@
+const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session')
-const express = require('express');
+
+
 
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
 
 const urlDatabase = {
   'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID: '4pdk39' },
@@ -27,6 +31,7 @@ const users = {
     password: "anotherpassword"
   }
 };
+
 
 const generateRandomString = function() {
   let randomString = Math.floor(Math.random() * 2176782336).toString(36); // 2176782336 min base10 number to guarantee 6 digits from Math.random in base36. Using base 36 means in addition to 0-9, all letters of the alphabet will be used to rep numbers (like HEX).
@@ -70,7 +75,7 @@ app.get('/login', (req, res) => {
 
 
 app.get('/urls', (req, res) => {
-  const currentUser = req.cookies['user_id'];
+  const currentUser = req.session.user_id;
   const filteredURLs = urlsForUser(currentUser);
   let templateVars = { urls: filteredURLs, user: users[currentUser] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
   res.render('urls_index', templateVars);
@@ -81,8 +86,8 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-  let templateVars = { user: users[req.cookies['user_id']] }
-  if (req.cookies['user_id']) {
+  let templateVars = { user: users[req.session.user_id] }
+  if (req.session.user_id) {
     res.render('urls_new', templateVars);
   } else {
     res.redirect(`/login`);
@@ -90,8 +95,9 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  let userID = req.cookies['user_id'];
+  let userID = req.session.user_id;
   let shortURL = req.params.shortURL;
+  console.log(`${userID}  ${shortURL}   ${urlDatabase[shortURL]['longURL']}`)
   let access = false;
   if (userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
     access = true;
@@ -101,7 +107,11 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]['longURL'];
+  const userID = req.session.user_id;
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL]['longURL'];
+  console.log(shortURL);
+  console.log(longURL);
   res.redirect(longURL);
 });
 
@@ -111,7 +121,7 @@ app.get('/hello', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
-  const user = req.cookies['user_id']
+  const user = req.session.user_id;
   const newURL = {};
   newURL['longURL'] = req.body.longURL;
   newURL['userID'] = user;
@@ -131,7 +141,7 @@ app.post('/register', (req, res) => {
       'email': newEmail,
       'password': newPassword
     }
-    res.cookie('user_id', newUserID);
+    req.session.user_id = newUserID;
     res.redirect(`/urls`);
   }
   console.log(newPassword);
@@ -144,19 +154,19 @@ app.post('/login', (req, res) => {
   const hashedPW = emailAlreadyRegistered(email, (user) => { return users[user]['password'] })
   if (emailAlreadyRegistered(email, () => { return true })) {
     if (bcrypt.compareSync(pw, hashedPW)) {
-      res.cookie('user_id', userID);
+      req.session.user_id = userID;
       res.redirect('/urls');
     } else res.sendStatus(403);
   } else res.sendStatus(403);
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id', req.body.user_id);
+  req.session = null
   res.redirect('/urls');
 });
 
 app.post('/urls/:shortURL', (req, res) => {
-  let currentUser = req.cookies['user_id'];
+  let currentUser = req.session.user_id;
   let shortURL = req.params.shortURL;
 
   if (currentUser === whoseUrlIsThis(shortURL)) {   // if the person logged in is the owner of this shortURL
@@ -169,7 +179,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.cookies['user_id'] === whoseUrlIsThis(shortURL)) {   // same as edit
+  if (req.session.user_id === whoseUrlIsThis(shortURL)) {   // same as edit
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
