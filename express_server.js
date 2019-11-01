@@ -50,6 +50,9 @@ const whoseUrlIsThis = function(shortURL) {
   return urlDatabase[shortURL]['userID'];
 }
 
+
+// GET 
+
 app.get('/', (req, res) => {
   if (!req.session.user_id) {
     res.redirect(`/login`);
@@ -100,15 +103,15 @@ app.get('/urls/:shortURL', (req, res) => {
 
   if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
     access = true;
-    templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access};
+    templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access };
   } else if (!access) {
     if (!urlDatabase[shortURL]) {
       res.status(404);
     } else {
       res.status(403);
     }
-    templateVars = {access: access, user: users[userID]}
-  } 
+    templateVars = { access: access, user: users[userID] }
+  }
   res.render('urls_show', templateVars);
 });
 
@@ -124,18 +127,21 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
-app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
-});
+// POST
 
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   const user = req.session.user_id;
   const newURL = {};
-  newURL['longURL'] = req.body.longURL;
-  newURL['userID'] = user;
-  urlDatabase[shortURL] = newURL;
-  res.redirect(`/urls/${shortURL}`);           // redirect to shortURL page
+  if (user) {                                // if user is logged in
+    newURL['longURL'] = req.body.longURL;
+    newURL['userID'] = user;
+    urlDatabase[shortURL] = newURL;
+    res.redirect(`/urls/${shortURL}`);       // redirect to shortURL page
+  } else {
+    res.status(403);
+    res.redirect('/login');
+  }
 });
 
 app.post('/register', (req, res) => {
