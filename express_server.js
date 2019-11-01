@@ -99,6 +99,7 @@ app.get('/urls/:shortURL', (req, res) => {
     access = true;
   }
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access};
+ 
   res.render('urls_show', templateVars);
 });
 
