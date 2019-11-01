@@ -14,7 +14,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1', 'key2']
+  keys: ['637972591', '962198545']
 }))
 
 const urlDatabase = {
