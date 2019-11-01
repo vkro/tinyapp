@@ -65,7 +65,11 @@ app.get('/register', (req, res) => {
 })
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  if (!req.session.user_id) {
+    res.render('login');
+  } else {
+    res.redirect('/urls');
+  }
 })
 
 
