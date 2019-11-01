@@ -95,13 +95,19 @@ app.get('/urls/:shortURL', (req, res) => {
   let userID = req.session.user_id;
   let shortURL = req.params.shortURL;
   let access = false;
-  if (userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
+  let templateVars = {};
+
+  if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL)) {    // make sure the person trying to view this page is the owner of the shortURL
     access = true;
-  }
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access};
-  if (!access) {
-    res.status(403);
-  }
+    templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], access: access};
+  } else if (!access) {
+    if (!urlDatabase[shortURL]) {
+      res.status(404);
+    } else {
+      res.status(403);
+    }
+    templateVars = {access: access}
+  } 
   res.render('urls_show', templateVars);
 });
 
