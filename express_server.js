@@ -69,8 +69,9 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
+  const templateVars = { loginError: false }; // include this because POST /login uses this to notify user that they've entered incorrect login info
   if (!req.session.user_id) {
-    res.render('login');
+    res.render('login', templateVars);
   } else {
     res.redirect('/urls');
   }
@@ -175,6 +176,7 @@ app.post('/login', (req, res) => {
   const pw = req.body.password;
   const userID = emailAlreadyRegistered(email, users, (user) => user);
   const hashedPW = emailAlreadyRegistered(email, users, (user) => { return users[user]['password'] })
+  const templateVars = { loginError: false };
 
   if (userID) {
     if (bcrypt.compareSync(pw, hashedPW)) {
@@ -182,8 +184,9 @@ app.post('/login', (req, res) => {
       res.redirect('/urls');
     }
   }
+  templateVars.loginError = true;
   res.status(403);
-  res.render('login');
+  res.render('login', templateVars);
 });
 
 app.post('/logout', (req, res) => {
