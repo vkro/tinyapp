@@ -176,12 +176,14 @@ app.post('/login', (req, res) => {
   const userID = emailAlreadyRegistered(email, users, (user) => user);
   const hashedPW = emailAlreadyRegistered(email, users, (user) => { return users[user]['password'] })
 
-  if (emailAlreadyRegistered(email, users, () => { return true })) {
+  if (userID) {
     if (bcrypt.compareSync(pw, hashedPW)) {
       req.session.user_id = userID;
       res.redirect('/urls');
-    } else res.sendStatus(403);
-  } else res.sendStatus(403);
+    }
+  }
+  res.status(403);
+  res.render('login');
 });
 
 app.post('/logout', (req, res) => {
