@@ -70,7 +70,12 @@ app.get('/urls', (req, res) => {
   const currentUser = req.session.user_id;
   const filteredURLs = urlsForUser(currentUser);
   let templateVars = { urls: filteredURLs, user: users[currentUser] }; // variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
-  res.render('urls_index', templateVars);
+  if (!currentUser) {
+    res.status(403);
+    res.render('urls_index', templateVars);
+  } else {
+    res.render('urls_index', templateVars);
+  }
 });
 
 app.get('/urls.json', (req, res) => {
