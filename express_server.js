@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const { emailAlreadyRegistered } = require('./helpers');
 const { generateRandomString } = require('./helpers');
 const { urlsForUser } = require('./helpers');
@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   keys: ['637972591', '962198545']
-}))
+}));
 
 const urlDatabase = {
   'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID: '4pdk39' },
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  const templateVars = { registrationError: false};  // used later in POST /register route
+  const templateVars = { registrationError: false };  // used later in POST /register route
   if (!req.session.user_id) {                        // if nobody's logged in
     res.render('register', templateVars);                          // let them register
   } else {
@@ -73,7 +73,7 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   let templateVarsNew = { user: users[req.session.user_id] };
-  let templateVarsLogin = {loginError: true};
+  let templateVarsLogin = { loginError: true };
   if (req.session.user_id) {                           // if someone's logged in
     res.render('urls_new', templateVarsNew);           // let them access the form to create a new tinyURL
   } else {
@@ -97,7 +97,7 @@ app.get('/urls/:shortURL', (req, res) => {
     } else {
       res.status(403);                                                   // otherwise, user doesn't own shortURL, so send 403 status
     }
-    templateVars = { access: access, user: users[userID] }
+    templateVars = { access: access, user: users[userID] };
   }
   res.render('urls_show', templateVars);                                 // render shortURL page based on value of access variable
 });
@@ -120,8 +120,8 @@ app.post('/urls', (req, res) => {            // create new shortURL
   const shortURL = generateRandomString();
   const user = req.session.user_id;
   const newURL = {};
-  const date = new Date()
-  const dateToString = date.toString()
+  const date = new Date();
+  const dateToString = date.toString();
   if (user) {                                // if user is logged in
     newURL['longURL'] = req.body.longURL;
     newURL['userID'] = user;
@@ -143,16 +143,19 @@ app.post('/register', (req, res) => {
   if (newEmail === "" || newPassword === "") {     // if either field is blank, send 400 code and redirect back to registration page
     res.status(400);
     res.render('register', templateVars);
-  } else if (emailAlreadyRegistered(newEmail, users, () => { return true })) {
+  } else if (emailAlreadyRegistered(newEmail, users, () => {
+    return true;
+  }
+  )) {
     templateVars.registrationError = true;        // if email already registered in database, render registration page with message letting user know
     res.render('register', templateVars);
   } else {                                        // otherwise, add new user to database and redirect to /urls
     users[newUserID] = {
-    'email': newEmail,
-    'password': newPassword
-  }
-  req.session.user_id = newUserID;
-  res.redirect(`/urls`);
+      'email': newEmail,
+      'password': newPassword
+    };
+    req.session.user_id = newUserID;
+    res.redirect(`/urls`);
   }
 });
 
@@ -160,7 +163,9 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const pw = req.body.password;
   const userID = emailAlreadyRegistered(email, users, (user) => user);
-  const hashedPW = emailAlreadyRegistered(email, users, (user) => { return users[user]['password'] })
+  const hashedPW = emailAlreadyRegistered(email, users, (user) => {
+    return users[user]['password'];
+  });
   const templateVars = { loginError: false };
 
   if (userID) {
@@ -170,7 +175,7 @@ app.post('/login', (req, res) => {
     }
   }
   templateVars.loginError = true;             // if wrong email or password entered
-  res.status(403);                            // error code and 
+  res.status(403);                            // error code and
   res.render('login', templateVars);          // go back to login page, displaying message cueing user that wrong login info has been entered
 });
 
@@ -198,7 +203,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  req.session = null
+  req.session = null;
   res.redirect('login');
 });
 
