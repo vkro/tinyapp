@@ -22,7 +22,12 @@ Built at [Lighthouse Labs](https://www.lighthouselabs.ca/) in the web developmen
 
 !["Screenshot of Create New URL page"](https://github.com/vkro/tinyapp/blob/master/docs/create-new-url.png)
 
+--
+
 !["Screenshot of TinyURL page"](https://github.com/vkro/tinyapp/blob/master/docs/tiny-url-page.png)
+
+
+--
 
 !["Screenshot of URLs index page"](https://github.com/vkro/tinyapp/blob/master/docs/urls-index-page.png)
 
