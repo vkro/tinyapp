@@ -1,6 +1,6 @@
+const PORT = 8080; //default port 8080
 const express = require('express');
 const app = express();
-const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
@@ -17,12 +17,10 @@ app.use(cookieSession({
   keys: ['637972591', '962198545']
 }));
 
-const urlDatabase = {
-  'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID: '4pdk39' },
-  '9sm5xK': { longURL: 'http://www.google.ca', userID: 'j36wu4' },
-  'xs2hxK': { longURL: 'https://www.britannica.com/list/the-10-best-types-of-cat', userID: 'j36wu4' }
-};
 
+// URL and User Databases
+
+const urlDatabase = {};
 const users = {};
 
 
@@ -30,39 +28,39 @@ const users = {};
 
 app.get('/', (req, res) => {
   const templateVars = { loginError: false };
-  if (!req.session.user_id) {               // if nobody's logged in
-    res.render('login', templateVars);      // send them to the login page
+  if (!req.session.user_id) {                         // if nobody's logged in
+    res.render('login', templateVars);                // send them to the login page
+  } else {
+    res.redirect('/urls');                                 // otherwise show them their url index
   }
-  res.render('urls');                    // otherwise send them to their url index
 });
 
 app.get('/register', (req, res) => {
-  const templateVars = { registrationError: false };  // used later in POST /register route
-  if (!req.session.user_id) {                        // if nobody's logged in
-    res.render('register', templateVars);                          // let them register
+  const templateVars = { registrationError: false };  // this will be used later in POST /register route
+  if (!req.session.user_id) {                         // if nobody's logged in
+    res.render('register', templateVars);             // let them register
   } else {
-    res.redirect('/urls');                           // otherwise redirect them to their urls index
+    res.redirect('/urls');                            // otherwise redirect them to their urls index
   }
 });
 
 app.get('/login', (req, res) => {
-  const templateVars = { loginError: false }; // include this because POST /login route uses this to signal that user gets a message that they've entered incorrect login info
-  if (!req.session.user_id) {                 // if nobody's logged in
-    res.render('login', templateVars);        // then let them log in
+  const templateVars = { loginError: false };         // this will be used later in POST /login route
+  if (!req.session.user_id) {                         // if nobody's logged in
+    res.render('login', templateVars);                // then let them log in
   } else {
-    res.redirect('/urls');                    // otherwise redirect them to their urls index
+    res.redirect('/urls');                            // otherwise redirect them to their urls index
   }
 });
 
-
 app.get('/urls', (req, res) => {
   const currentUser = req.session.user_id;
-  const filteredURLs = urlsForUser(currentUser, urlDatabase);              // filter urlDatabase for urls owned by currently logged-in user
+  const filteredURLs = urlsForUser(currentUser, urlDatabase);  // filter urlDatabase for urls owned by currently logged-in user
   let templateVars = { urls: filteredURLs, user: users[currentUser] };         // ** NOTE TO SELF ** variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
-  if (!currentUser) {                                         // check if there's someone logged in
-    res.status(403);                                          // if not, send 403 status code
+  if (!currentUser) {                                 // check if there's someone logged in
+    res.status(403);                                  // if not, send 403 status code
   }
-  res.render('urls_index', templateVars);                     // render user's urls index - if user's not logged in, they'll get an Access Denied pop-up instead
+  res.render('urls_index', templateVars);             // render user's urls index - if user isn't logged in, they'll get an Access Denied message instead of url index
 });
 
 
@@ -75,31 +73,31 @@ app.get('/urls/new', (req, res) => {
   let templateVarsNew = { user: users[req.session.user_id] };
   let templateVarsLogin = { loginError: true };
   if (req.session.user_id) {                           // if someone's logged in
-    res.render('urls_new', templateVarsNew);           // let them access the form to create a new tinyURL
+    res.render('urls_new', templateVarsNew);           // send them to the form to create a new tinyURL
   } else {
-    res.status(403);                                   // otherwise end a 403 status code
-    res.render('login', templateVarsLogin);            // and send them to the login page with a cue that there's been an error
+    res.status(403);                                   // otherwise send a 403 status code
+    res.render('login', templateVarsLogin);            // and show them the login page with a cue that they've made an error
   }
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   let userID = req.session.user_id;
   let shortURL = req.params.shortURL;
-  let access = false;                   // access is false unless user and url are verified
+  let access = false;                                  // access is false unless user and url are verified
   let templateVars = {};
 
   if (urlDatabase[shortURL] && userID === whoseUrlIsThis(shortURL, urlDatabase)) {    // make sure the shortURL is in the database, and person trying to view this page is the owner of the shortURL
-    access = true;                                                       // if both are true, set access to true
+    access = true;                                                                    // if both are true, set access to true
     templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL]['longURL'], user: users[userID], date: urlDatabase[shortURL]['dateCreated'], access: access };
-  } else if (!access) {
-    if (!urlDatabase[shortURL]) {                                        // if url isn't in database, send 404 status
+  } else if (!access) {                                // if access hasn't been verified, then
+    if (!urlDatabase[shortURL]) {                      // if url isn't in database, send 404 status
       res.status(404);
     } else {
-      res.status(403);                                                   // otherwise, user doesn't own shortURL, so send 403 status
+      res.status(403);                                 // otherwise, user doesn't own shortURL, so send 403 status
     }
-    templateVars = { access: access, user: users[userID] };
+    templateVars = { access: access, user: users[userID] };  // only include access status and userID if user doesn't have access to this shortURL
   }
-  res.render('urls_show', templateVars);                                 // render shortURL page based on value of access variable
+  res.render('urls_show', templateVars);               // render shortURL page based on value of access variable
 });
 
 
