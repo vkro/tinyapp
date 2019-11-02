@@ -34,7 +34,7 @@ Built at [Lighthouse Labs](https://www.lighthouselabs.ca/) in the web developmen
 
 ## Contributions
 
-Code to initiate the project from [Lighthouse Labs](https://www.lighthouselabs.ca/).
+Code to initiate the project and roadmap from [Lighthouse Labs](https://www.lighthouselabs.ca/).
 
 Thanks to [@stella-zb](https://github.com/stella-zb) for many hours discussing code, debugging, and providing moral support!
 
