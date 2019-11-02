@@ -8,8 +8,8 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
 
-
         <% if(locals.user){ %>
+
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <p class="navbar-text" style="margin-left: 10em">Logged in as: <%= user.email %></p>
@@ -17,7 +17,9 @@
           <button class="btn btn-pill btn-outline-light navbar-text" type="submit" name='logout' value="<%= user %>"
             style="margin-left: 1em">Logout</button>
         </form>
+
         <% } else { %>
+          
         <div class="navbar-nav">
           <a class="nav-item nav-link" href="/register">Register</a>
           <a class="nav-item nav-link" href="/login">Login</a>
