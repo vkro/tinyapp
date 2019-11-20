@@ -60,13 +60,17 @@ app.get('/login', (req, res) => {
 
 app.get('/urls', (req, res) => {
   const currentUser = req.session.user_id;
-  const filteredURLs = urlsForUser(currentUser, urlDatabase);  // filter urlDatabase for urls owned by currently logged-in user
-  let templateVars = { urls: filteredURLs, user: users[currentUser] };         // ** NOTE TO SELF ** variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
-  
-  if (!currentUser) {                                 // check if there's someone logged in
-    res.status(403);                                  // if not, send 403 status code
+  // filter urlDatabase for urls owned by currently logged-in user
+  const filteredURLs = urlsForUser(currentUser, urlDatabase);
+  // ** NOTE TO SELF ** variables sent to an EJS template need to be sent inside an object, so that we can access the data w/ a key
+  let templateVars = { urls: filteredURLs, user: users[currentUser] };
+  // check if there's someone logged in
+  if (!currentUser) {
+    // if not, send 403 status code
+    res.status(403);
   }
-  res.render('urls_index', templateVars);             // render user's urls index - if user isn't logged in, they'll get an Access Denied message instead of url index
+  // render user's urls index - if user isn't logged in, they'll get an Access Denied message instead of url index
+  res.render('urls_index', templateVars);
 });
 
 
